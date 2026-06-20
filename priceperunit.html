@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณความคุ้มค่าต่อปริมาณ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .product-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 5px solid #3498db;
+        }
+        .product-section.b {
+            border-left-color: #e67e22;
+        }
+        h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .info { background-color: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛒 คำนวณความคุ้มค่า</h1>
+    
+    <div class="product-section">
+        <h3>สินค้า A</h3>
+        <div class="input-group">
+            <label for="priceA">ราคา (บาท):</label>
+            <input type="number" id="priceA" placeholder="เช่น 50" step="any">
+        </div>
+        <div class="input-group">
+            <label for="volumeA">ปริมาณ (กรัม/มล./ชิ้น):</label>
+            <input type="number" id="volumeA" placeholder="เช่น 100" step="any">
+        </div>
+    </div>
+
+    <div class="product-section b">
+        <h3>สินค้า B</h3>
+        <div class="input-group">
+            <label for="priceB">ราคา (บาท):</label>
+            <input type="number" id="priceB" placeholder="เช่น 80" step="any">
+        </div>
+        <div class="input-group">
+            <label for="volumeB">ปริมาณ (กรัม/มล./ชิ้น):</label>
+            <input type="number" id="volumeB" placeholder="เช่น 200" step="any">
+        </div>
+    </div>
+
+    <button onclick="calculateWorth()">คำนวณความคุ้มค่า</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function calculateWorth() {
+    // 1. ดึงค่าจากช่องกรอกข้อมูล
+    const priceA = parseFloat(document.getElementById('priceA').value);
+    const volumeA = parseFloat(document.getElementById('volumeA').value);
+    const priceB = parseFloat(document.getElementById('priceB').value);
+    const volumeB = parseFloat(document.getElementById('volumeB').value);
+    
+    const resultDiv = document.getElementById('result');
+
+    // 2. ตรวจสอบว่ากรอกข้อมูลครบถ้วนและถูกต้องหรือไม่
+    if (!priceA || !volumeA || !priceB || !volumeB || volumeA <= 0 || volumeB <= 0) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'info';
+        resultDiv.innerHTML = '⚠️ กรุณากรอกข้อมูลราคาและปริมาณให้ถูกต้อง';
+        return;
+    }
+
+    // 3. คำนวณราคาต่อหน่วย
+    const unitPriceA = priceA / volumeA;
+    const unitPriceB = priceB / volumeB;
+
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'success';
+
+    // 4. เปรียบเทียบผลลัพธ์
+    if (unitPriceA < unitPriceB) {
+        const saving = ((unitPriceB - unitPriceA) / unitPriceB * 100).toFixed(1);
+        resultDiv.innerHTML = `🎉 สินค้า A คุ้มค่ากว่า!<br><small>ชิ้น A ตกหน่วยละ ${unitPriceA.toFixed(4)} บาท<br>ชิ้น B ตกหน่วยละ ${unitPriceB.toFixed(4)} บาท<br>(สินค้า A ถูกกว่าประมาณ ${saving}%)</small>`;
+    } else if (unitPriceB < unitPriceA) {
+        const saving = ((unitPriceA - unitPriceB) / unitPriceA * 100).toFixed(1);
+        resultDiv.innerHTML = `🎉 สินค้า B คุ้มค่ากว่า!<br><small>ชิ้น B ตกหน่วยละ ${unitPriceB.toFixed(4)} บาท<br>ชิ้น A ตกหน่วยละ ${unitPriceA.toFixed(4)} บาท<br>(สินค้า B ถูกกว่าประมาณ ${saving}%)</small>`;
+    } else {
+        resultDiv.className = 'info';
+        resultDiv.innerHTML = `⚖️ ทั้งสองชิ้นคุ้มค่าเท่ากัน!<br><small>ราคาตกหน่วยละ ${unitPriceA.toFixed(4)} บาท เท่ากัน</small>`;
+    }
+}
+</script>
+
+</body>
+</html>
