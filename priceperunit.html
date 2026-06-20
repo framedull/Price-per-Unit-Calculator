@@ -127,7 +127,7 @@ function calculateWorth() {
     
     const resultDiv = document.getElementById('result');
 
-    // 2. ตรวจสอบว่ากรอกข้อมูลครบถ้วนและถูกต้องหรือไม่
+    // 2. ตรวจสอบความถูกต้องของข้อมูล
     if (!priceA || !volumeA || !priceB || !volumeB || volumeA <= 0 || volumeB <= 0) {
         resultDiv.style.display = 'block';
         resultDiv.className = 'info';
@@ -142,13 +142,46 @@ function calculateWorth() {
     resultDiv.style.display = 'block';
     resultDiv.className = 'success';
 
-    // 4. เปรียบเทียบผลลัพธ์
+    // ฟังก์ชันช่วยเลือกตำแหน่งทศนิยม (ถ้าค่าต่างกันน้อยมาก จะแสดงทศนิยมเพิ่มขึ้น)
+    const getDecimals = (valA, valB) => {
+        const diff = Math.abs(valA - valB);
+        if (diff < 0.0001) return 6;
+        if (diff < 0.01) return 4;
+        return 2;
+    };
+
+    const decimals = getDecimals(unitPriceA, unitPriceB);
+
+    // 4. เปรียบเทียบผลลัพธ์และแสดงส่วนต่าง
     if (unitPriceA < unitPriceB) {
-        const saving = ((unitPriceB - unitPriceA) / unitPriceB * 100).toFixed(1);
-        resultDiv.innerHTML = `🎉 สินค้า A คุ้มค่ากว่า!<br><small>ชิ้น A ตกหน่วยละ ${unitPriceA.toFixed(4)} บาท<br>ชิ้น B ตกหน่วยละ ${unitPriceB.toFixed(4)} บาท<br>(สินค้า A ถูกกว่าประมาณ ${saving}%)</small>`;
+        const percentageSaving = ((unitPriceB - unitPriceA) / unitPriceB * 100).toFixed(1);
+        // คำนวณว่าถ้าซื้อในปริมาณของ B จะประหยัดไปกี่บาท
+        const bathSaving = ((unitPriceB - unitPriceA) * volumeB).toFixed(4); 
+        
+        resultDiv.innerHTML = `
+            🎉 สินค้า A คุ้มค่ากว่า!<br>
+            <small style="display:block; margin-top:10px;">
+                ชิ้น A ตกหน่วยละ: ${unitPriceA.toFixed(decimals)} บาท<br>
+                ชิ้น B ตกหน่วยละ: ${unitPriceB.toFixed(decimals)} บาท<br>
+                <span style="color: #27ae60; font-weight: bold;">
+                    (สินค้า A ถูกกว่าประมาณ ${percentageSaving}% หรือประหยัดได้ ${bathSaving} บาท ที่ปริมาณเท่ากัน)
+                </span>
+            </small>`;
+            
     } else if (unitPriceB < unitPriceA) {
-        const saving = ((unitPriceA - unitPriceB) / unitPriceA * 100).toFixed(1);
-        resultDiv.innerHTML = `🎉 สินค้า B คุ้มค่ากว่า!<br><small>ชิ้น B ตกหน่วยละ ${unitPriceB.toFixed(4)} บาท<br>ชิ้น A ตกหน่วยละ ${unitPriceA.toFixed(4)} บาท<br>(สินค้า B ถูกกว่าประมาณ ${saving}%)</small>`;
+        const percentageSaving = ((unitPriceA - unitPriceB) / unitPriceA * 100).toFixed(1);
+        // คำนวณว่าถ้าซื้อในปริมาณของ A จะประหยัดไปกี่บาท
+        const bathSaving = ((unitPriceA - unitPriceB) * volumeA).toFixed(4);
+        
+        resultDiv.innerHTML = `
+            🎉 สินค้า B คุ้มค่ากว่า!<br>
+            <small style="display:block; margin-top:10px;">
+                ชิ้น B ตกหน่วยละ: ${unitPriceB.toFixed(decimals)} บาท<br>
+                ชิ้น A ตกหน่วยละ: ${unitPriceA.toFixed(decimals)} บาท<br>
+                <span style="color: #27ae60; font-weight: bold;">
+                    (สินค้า B ถูกกว่าประมาณ ${percentageSaving}% หรือประหยัดได้ ${bathSaving} บาท ที่ปริมาณเท่ากัน)
+                </span>
+            </small>`;
     } else {
         resultDiv.className = 'info';
         resultDiv.innerHTML = `⚖️ ทั้งสองชิ้นคุ้มค่าเท่ากัน!<br><small>ราคาตกหน่วยละ ${unitPriceA.toFixed(4)} บาท เท่ากัน</small>`;
